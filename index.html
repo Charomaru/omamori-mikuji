@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff7fb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="おまもりみくじ" />
+  <title>おまもりみくじ</title>
+  <style>
+    :root {
+      --bg1: #fff7fb;
+      --bg2: #f4efff;
+      --ink: #4e4257;
+      --accent: #d985a7;
+      --card: rgba(255,255,255,.88);
+      --shadow: 0 18px 50px rgba(94, 70, 103, .15);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,.95) 0 8%, transparent 28%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display: flex;
+      justify-content: center;
+      padding: max(24px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+    }
+    .app { width: min(100%, 430px); }
+    .brand {
+      text-align: center;
+      margin: 10px 0 22px;
+    }
+    .brand .moon { font-size: 44px; }
+    h1 {
+      margin: 4px 0 6px;
+      font-size: 30px;
+      letter-spacing: .08em;
+    }
+    .subtitle {
+      margin: 0;
+      font-size: 14px;
+      opacity: .75;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .draw-area { text-align: center; }
+    .omikuji-box {
+      width: 112px;
+      height: 150px;
+      margin: 4px auto 20px;
+      border-radius: 18px 18px 28px 28px;
+      background: linear-gradient(180deg, #f6b6cb, #d982a6);
+      box-shadow: inset 0 0 0 6px rgba(255,255,255,.2), 0 12px 26px rgba(196, 103, 144, .25);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      writing-mode: vertical-rl;
+    }
+    button {
+      appearance: none;
+      border: 0;
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 18px;
+      font-size: 17px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #e49ab7, #9d87d8);
+      box-shadow: 0 10px 22px rgba(159, 115, 184, .25);
+    }
+    button:active { transform: scale(.985); }
+    button:disabled {
+      opacity: .55;
+      box-shadow: none;
+    }
+    .note {
+      margin: 13px 0 0;
+      font-size: 13px;
+      opacity: .68;
+    }
+    .result { display: none; }
+    .result.show { display: block; animation: pop .55s ease both; }
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(12px) scale(.98); }
+      to { opacity: 1; transform: none; }
+    }
+    .rank-wrap {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(90,70,100,.1);
+    }
+    .rank {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      margin: 0;
+    }
+    .rank-sub {
+      margin-top: 6px;
+      font-size: 14px;
+      opacity: .72;
+    }
+    .message {
+      font-size: 17px;
+      line-height: 1.85;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mini {
+      background: rgba(248,244,252,.9);
+      border-radius: 18px;
+      padding: 15px;
+      min-height: 105px;
+    }
+    .mini .label {
+      font-size: 12px;
+      opacity: .62;
+      margin-bottom: 8px;
+    }
+    .mini .value {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .action {
+      margin-top: 12px;
+      padding: 17px;
+      border-radius: 18px;
+      background: rgba(255, 245, 249, .95);
+    }
+    .action .label {
+      font-size: 12px;
+      opacity: .62;
+      margin-bottom: 7px;
+    }
+    .action .value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      opacity: .55;
+      margin: 18px 0 0;
+    }
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10;
+      font-size: 22px;
+      animation: fly 1.4s ease-out forwards;
+    }
+    @keyframes fly {
+      0% { opacity: 0; transform: translateY(20px) scale(.5) rotate(0deg); }
+      25% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-180px) scale(1.2) rotate(160deg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="brand">
+      <div class="moon">🌙</div>
+      <h1>おまもりみくじ</h1>
+      <p class="subtitle">今日のあなたに、やさしい運だめし</p>
+    </header>
+
+    <section class="card draw-area" id="drawCard">
+      <div class="omikuji-box">おみくじ</div>
+      <button id="drawBtn">今日のおみくじを引く</button>
+      <p class="note">1日1回だけ引けます</p>
+    </section>
+
+    <section class="card result" id="resultCard">
+      <div class="rank-wrap">
+        <p class="rank" id="rank"></p>
+        <div class="rank-sub" id="rankSub"></div>
+      </div>
+      <div class="message" id="message"></div>
+
+      <div class="grid">
+        <div class="mini">
+          <div class="label">ラッキーカラー</div>
+          <div class="value" id="color"></div>
+        </div>
+        <div class="mini">
+          <div class="label">ラッキーアイテム</div>
+          <div class="value" id="item"></div>
+        </div>
+      </div>
+
+      <div class="action">
+        <div class="label">今日の開運アクション</div>
+        <div class="value" id="action"></div>
+      </div>
+    </section>
+
+    <p class="footer">どの結果も、今日を少し明るくするためのおみくじです。</p>
+  </main>
+
+<script>
+const ranks = [
+  { name: "超大吉", weight: 1, sub: "きらめく特別な一日" },
+  { name: "大吉",   weight: 9, sub: "うれしい流れに乗れそう" },
+  { name: "吉",     weight: 35, sub: "穏やかに運が味方する日" },
+  { name: "中吉",   weight: 30, sub: "少しずつ良い方向へ" },
+  { name: "小吉",   weight: 20, sub: "小さな幸せに出会える日" },
+  { name: "末吉",   weight: 5, sub: "焦らず進めば大丈夫" }
+];
+
+const messages = [
+  "今日は自分のペースを大切にすると、自然と良い流れが生まれそう。",
+  "ちょっとした勇気が、思っていた以上のうれしい出来事につながりそう。",
+  "笑顔でいる時間を増やすと、あなたの魅力がいつも以上に輝く日。",
+  "迷ったときは、心が少し軽くなる方を選ぶとよさそう。",
+  "今日できたことを一つ見つけて、自分をたくさん褒めてあげて。",
+  "無理をしすぎなくて大丈夫。ゆっくり進むことも立派な前進です。",
+  "身近な人との何気ない会話に、うれしいヒントがありそう。",
+  "新しいことを始めるなら、今日は小さな一歩がぴったり。",
+  "好きなものに触れる時間が、運気をやさしく整えてくれそう。",
+  "あなたが思っている以上に、今日は味方の多い一日です。"
+];
+
+const colors = [
+  "🩵 空色", "🩷 桜色", "💜 ラベンダー", "💛 レモン色",
+  "🤍 パールホワイト", "💚 ミントグリーン", "🧡 アプリコット", "💙 ネイビー"
+];
+
+const items = [
+  "お気に入りのノート", "小さな鏡", "ハンカチ", "イヤホン",
+  "ヘアアクセサリー", "お気に入りのペン", "星のモチーフ", "リップクリーム",
+  "香りのよいハンドクリーム", "小さなポーチ"
+];
+
+const actions = [
+  "「ありがとう」を一回多く言ってみる",
+  "好きな音楽を一曲聴く",
+  "机の上を少しだけ整える",
+  "空を見上げて深呼吸する",
+  "温かい飲み物をゆっくり飲む",
+  "今日のよかったことを一つ書く",
+  "いつもより少し早く寝る",
+  "鏡の前で笑ってみる",
+  "気になっていたことを5分だけ始める",
+  "大切な人にやさしい言葉をかける"
+];
+
+const KEY = "omamori_mikuji_v1";
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+function pickWeighted(list) {
+  const total = list.reduce((s, x) => s + x.weight, 0);
+  let r = Math.random() * total;
+  for (const x of list) {
+    r -= x.weight;
+    if (r < 0) return x;
+  }
+  return list[list.length - 1];
+}
+
+function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function render(result) {
+  document.getElementById("drawCard").style.display = "none";
+  document.getElementById("resultCard").classList.add("show");
+  document.getElementById("rank").textContent = result.rank.name;
+  document.getElementById("rankSub").textContent = result.rank.sub;
+  document.getElementById("message").textContent = result.message;
+  document.getElementById("color").textContent = result.color;
+  document.getElementById("item").textContent = result.item;
+  document.getElementById("action").textContent = result.action;
+}
+
+function sparkleBurst(extra = false) {
+  const icons = extra ? ["✨","🌸","⭐","💖","🎊"] : ["✨","🌸","⭐"];
+  const count = extra ? 28 : 14;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("div");
+    el.className = "sparkle";
+    el.textContent = pick(icons);
+    el.style.left = `${8 + Math.random() * 84}vw`;
+    el.style.top = `${55 + Math.random() * 25}vh`;
+    el.style.animationDelay = `${Math.random() * .35}s`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1800);
+  }
+}
+
+function draw() {
+  const result = {
+    date: todayKey(),
+    rank: pickWeighted(ranks),
+    message: pick(messages),
+    color: pick(colors),
+    item: pick(items),
+    action: pick(actions)
+  };
+  localStorage.setItem(KEY, JSON.stringify(result));
+  render(result);
+  sparkleBurst(result.rank.name === "超大吉" || result.rank.name === "大吉");
+}
+
+document.getElementById("drawBtn").addEventListener("click", draw);
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY));
+  if (saved && saved.date === todayKey()) {
+    render(saved);
+  }
+} catch (e) {
+  localStorage.removeItem(KEY);
+}
+</script>
+</body>
+</html>
