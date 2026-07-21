@@ -323,6 +323,8 @@
       100% { opacity: 0; transform: translate3d(var(--drift),105vh,0) rotate(560deg); }
     }
 
+
+    .result-image { width:100%; display:block; border-radius:20px; border:1px solid var(--line); margin-bottom:14px; }
     @media (max-width: 390px) {
       .character-wrap { min-height: 330px; }
       .character { max-height: 370px; }
@@ -340,8 +342,8 @@
     <header class="hero">
       <div class="knot">⌁୨୧⌁</div>
       <h1>おまもり<br>みくじ</h1>
-      <p class="hero-sub">ちゃろまるが、今日のおまもりを授けます</p>
-      <div class="today-chip">🌸 今日のおみくじ・1日1回</div>
+      <p class="hero-sub">ちゃろまるとピーちゃんが、今日のおまもりを届けます</p>
+      <div class="today-chip">🌸 1日1回・どれも良いおまもりです</div>
     </header>
 
     <section class="stage" id="drawCard">
@@ -350,14 +352,14 @@
         <img class="character" src="charomaru-miko.png" alt="巫女姿のちゃろまる">
       </div>
       <div class="draw-panel">
-        <button id="drawBtn">🐾 おみくじをひく</button>
-        <p class="note">今日のあなたに、やさしい言葉と小さなおまもりをお届けします。</p>
+        <button id="drawBtn">🐾 おまもりをひく</button>
+        <p class="note">順位ではなく、今日のあなたに届く「良いことの種類」です。</p>
       </div>
     </section>
 
     <section class="result" id="resultCard" aria-live="polite">
       <div class="rank-wrap">
-        <div class="rank-label">今日の運勢</div>
+        <div class="rank-label">今日のおまもり</div>
         <p class="rank" id="rank"></p>
         <div class="rank-sub" id="rankSub"></div>
       </div>
@@ -384,8 +386,8 @@
     <section class="profile">
       <img src="apple-touch-icon.png" alt="ちゃろまるの顔">
       <div>
-        <h2>ちゃろまるについて</h2>
-        <p>やさしくて、食いしん坊な巫女ねこ。毎日をそっと見守り、少し元気になれる言葉を届けます。</p>
+        <h2>ちゃろまるとピーちゃん</h2>
+        <p>穏やかに見守るちゃろまると、元気を届けるピーちゃん。ふたりはいつでもあなたの味方です。</p>
       </div>
     </section>
 
@@ -396,126 +398,61 @@
   </main>
 
 <script>
-const ranks = [
-  { name: "超大吉", weight: 1, sub: "特別な追い風が吹く一日" },
-  { name: "大吉",   weight: 9, sub: "うれしい流れに乗れそう" },
-  { name: "吉",     weight: 35, sub: "穏やかに運が味方する日" },
-  { name: "中吉",   weight: 30, sub: "少しずつ良い方向へ" },
-  { name: "小吉",   weight: 20, sub: "小さな幸せに出会える日" },
-  { name: "末吉",   weight: 5, sub: "焦らず進めば大丈夫" }
+const omamori = [
+  {name:"神吉", reading:"かみきち", theme:"特別な幸運・後押し", image:"kamiyoshi.png", messages:["今日は見えない追い風が、そっとあなたを後押ししてくれそうです。","思いがけない幸運に出会えるかもしれません。感謝の気持ちを忘れずに。"]},
+  {name:"嬉吉", reading:"うれきち", theme:"喜び・笑顔", image:"ureshiyoshi.png", messages:["小さなうれしいことが、いつもよりたくさん見つかりそうです。","あなたの笑顔が、周りの人にも明るい気持ちを届けます。"]},
+  {name:"縁吉", reading:"えんきち", theme:"出会い・つながり", image:"en_yoshi.png", messages:["人とのつながりが、今日のあなたに優しい力をくれそうです。","何気ない会話の中に、素敵なご縁の種が隠れています。"]},
+  {name:"福吉", reading:"ふくきち", theme:"日常の小さな幸せ", image:"fukuyoshi.png", messages:["当たり前の一日の中に、小さな福がいくつも隠れています。","身近な幸せに気づくほど、心があたたかくなる日です。"]},
+  {name:"優吉", reading:"やさきち", theme:"優しさ・癒やし", image:"yuuyoshi.png", messages:["誰かの優しさに触れて、心がふっと軽くなりそうです。","あなたの優しさも、きっと誰かのおまもりになります。"]}
 ];
-
-const messages = [
-  "緊張する日は、うまく見せようとしなくて大丈夫。あなたらしい言葉が、きっと相手に届きます。",
-  "今日のあなたには、思っている以上に味方がいます。深呼吸して、自分の歩幅で進みましょう。",
-  "少しの勇気が、新しいご縁を運んできそう。まずは笑顔で一歩を踏み出してみて。",
-  "迷ったときは、心が少し軽くなる方を選んで。ちゃろまるがそっと応援しています。",
-  "今日できたことを一つ見つけて、自分をたくさん褒めてあげてください。",
-  "無理をしすぎなくて大丈夫。ゆっくり進むことも、立派な前進です。",
-  "何気ない会話の中に、うれしいヒントがありそう。相手の言葉をゆっくり聞いてみて。",
-  "新しいことを始めるなら、今日は小さな一歩がぴったりです。",
-  "好きなものに触れる時間が、心と運をやさしく整えてくれそう。",
-  "あなたのまっすぐな気持ちは、きっと伝わります。今日も自分を信じて。"
-];
-
-const colors = [
-  "🩷 桜色", "🤍 パールホワイト", "🧡 アプリコット",
-  "💛 山吹色", "💚 若草色", "🩵 空色", "💜 藤色", "❤️ 朱色"
-];
-
-const items = [
-  "お気に入りのノート", "小さな鏡", "ハンカチ", "イヤホン",
-  "髪飾り", "お気に入りのペン", "猫のモチーフ", "リップクリーム",
-  "香りのよいハンドクリーム", "小さなポーチ"
-];
-
-const actions = [
-  "「ありがとう」を一回多く伝える",
-  "好きな音楽を一曲聴く",
-  "机の上を少しだけ整える",
-  "空を見上げて深呼吸する",
-  "温かい飲み物をゆっくり飲む",
-  "今日のよかったことを一つ書く",
-  "いつもより少し早く休む",
-  "鏡の前でやさしく笑ってみる",
-  "気になっていたことを5分だけ始める",
-  "大切な人にやさしい言葉をかける"
-];
-
-const KEY = "omamori_mikuji_v2";
-
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+const colors=["🩷 桜色","🤍 パールホワイト","🧡 アプリコット","💛 山吹色","💚 若草色","🩵 空色","💜 藤色","❤️ 朱色"];
+const items=["お気に入りのノート","小さな鏡","ハンカチ","イヤホン","髪飾り","お気に入りのペン","猫のモチーフ","鳥のモチーフ","リップクリーム","小さなポーチ"];
+const actions=["「ありがとう」を一回多く伝える","好きな音楽を一曲聴く","机の上を少しだけ整える","空を見上げて深呼吸する","温かい飲み物をゆっくり飲む","今日のよかったことを一つ書く","いつもより少し早く休む","鏡の前でやさしく笑ってみる","気になっていたことを5分だけ始める","大切な人にやさしい言葉をかける"];
+const KEY="omamori_mikuji_v4";
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function pick(list){return list[Math.floor(Math.random()*list.length)]}
+function render(r){
+  document.getElementById("drawCard").style.display="none";
+  const card=document.getElementById("resultCard"); card.classList.add("show");
+  let image=document.getElementById("resultImage");
+  if(!image){image=document.createElement("img");image.id="resultImage";image.className="result-image";card.insertBefore(image,card.firstChild);}
+  image.src=r.image; image.alt=`${r.name}のちゃろまるとピーちゃん`;
+  document.getElementById("rank").textContent=r.name;
+  document.getElementById("rankSub").textContent=r.theme;
+  document.getElementById("message").textContent=r.message;
+  document.getElementById("color").textContent=r.color;
+  document.getElementById("item").textContent=r.item;
+  document.getElementById("action").textContent=r.action;
+  setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"start"}),180);
 }
+function petalBurst(){const petals=["🌸","🌺","✨"];for(let i=0;i<24;i++){const el=document.createElement("span");el.className="petal";el.textContent=pick(petals);el.style.left=`${Math.random()*100}vw`;el.style.fontSize=`${14+Math.random()*14}px`;el.style.setProperty("--drift",`${-80+Math.random()*160}px`);el.style.animationDuration=`${2.7+Math.random()*2.5}s`;el.style.animationDelay=`${Math.random()*.65}s`;document.body.appendChild(el);setTimeout(()=>el.remove(),6000);}}
+function draw(){const o=pick(omamori);const r={date:todayKey(),name:o.name,reading:o.reading,theme:o.theme,image:o.image,message:pick(o.messages),color:pick(colors),item:pick(items),action:pick(actions)};localStorage.setItem(KEY,JSON.stringify(r));render(r);petalBurst();}
 
-function pickWeighted(list) {
-  const total = list.reduce((sum, item) => sum + item.weight, 0);
-  let random = Math.random() * total;
-  for (const item of list) {
-    random -= item.weight;
-    if (random < 0) return item;
-  }
-  return list[list.length - 1];
-}
-
-function pick(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-function render(result) {
-  document.getElementById("drawCard").style.display = "none";
-  document.getElementById("resultCard").classList.add("show");
-  document.getElementById("rank").textContent = result.rank.name;
-  document.getElementById("rankSub").textContent = result.rank.sub;
-  document.getElementById("message").textContent = result.message;
-  document.getElementById("color").textContent = result.color;
-  document.getElementById("item").textContent = result.item;
-  document.getElementById("action").textContent = result.action;
-  setTimeout(() => document.getElementById("resultCard").scrollIntoView({behavior:"smooth", block:"center"}), 180);
-}
-
-function petalBurst(extra = false) {
-  const count = extra ? 34 : 20;
-  const petals = ["🌸", "🌺", "✨"];
-  for (let i = 0; i < count; i++) {
-    const el = document.createElement("span");
-    el.className = "petal";
-    el.textContent = petals[Math.floor(Math.random() * petals.length)];
-    el.style.left = `${Math.random() * 100}vw`;
-    el.style.fontSize = `${14 + Math.random() * 14}px`;
-    el.style.setProperty("--drift", `${-80 + Math.random() * 160}px`);
-    el.style.animationDuration = `${2.7 + Math.random() * 2.5}s`;
-    el.style.animationDelay = `${Math.random() * .65}s`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 6000);
+async function shareResult(){
+  const saved=JSON.parse(localStorage.getItem(KEY));
+  if(!saved) return;
+  const url=location.href.split("#")[0];
+  const text=`今日のおまもりは「${saved.name}（${saved.reading}）」でした🌸\n${saved.message}\n\nちゃろまるとピーちゃんの おまもりみくじ`;
+  const status=document.getElementById("shareStatus");
+  try{
+    if(navigator.share){
+      await navigator.share({title:"おまもりみくじ",text,url});
+      status.textContent="おまもりを届けました。";
+    }else if(navigator.clipboard){
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      status.textContent="結果とリンクをコピーしました。";
+    }else{
+      status.textContent="この端末では共有機能を利用できません。";
+    }
+  }catch(e){
+    if(e.name!=="AbortError") status.textContent="共有できませんでした。もう一度お試しください。";
   }
 }
+document.getElementById("shareBtn").addEventListener("click",shareResult);
 
-function draw() {
-  const result = {
-    date: todayKey(),
-    rank: pickWeighted(ranks),
-    message: pick(messages),
-    color: pick(colors),
-    item: pick(items),
-    action: pick(actions)
-  };
-  localStorage.setItem(KEY, JSON.stringify(result));
-  render(result);
-  petalBurst(result.rank.name === "超大吉" || result.rank.name === "大吉");
-}
 
-document.getElementById("drawBtn").addEventListener("click", draw);
-
-try {
-  const saved = JSON.parse(localStorage.getItem(KEY));
-  if (saved && saved.date === todayKey()) {
-    render(saved);
-  }
-} catch (error) {
-  localStorage.removeItem(KEY);
-}
+document.getElementById("drawBtn").addEventListener("click",draw);
+try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.date===todayKey())render(saved);}catch(e){localStorage.removeItem(KEY);}
 </script>
 </body>
 </html>
