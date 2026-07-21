@@ -1,200 +1,367 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#fff7fb" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="おまもりみくじ" />
-  <title>おまもりみくじ</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff7f2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="おまもりみくじ">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>おまもりみくじ｜ちゃろまる</title>
   <style>
     :root {
-      --bg1: #fff7fb;
-      --bg2: #f4efff;
-      --ink: #4e4257;
-      --accent: #d985a7;
-      --card: rgba(255,255,255,.88);
-      --shadow: 0 18px 50px rgba(94, 70, 103, .15);
+      --paper: #fffaf5;
+      --paper2: #fff1ed;
+      --ink: #5b3025;
+      --soft-ink: #80594d;
+      --red: #c94e45;
+      --pink: #ed9999;
+      --deep-pink: #df7779;
+      --line: rgba(193, 91, 79, .23);
+      --card: rgba(255, 252, 248, .91);
+      --shadow: 0 18px 45px rgba(124, 72, 54, .13);
     }
+
     * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
       color: var(--ink);
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
+                   "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif;
       background:
-        radial-gradient(circle at 15% 10%, rgba(255,255,255,.95) 0 8%, transparent 28%),
-        linear-gradient(160deg, var(--bg1), var(--bg2));
-      display: flex;
-      justify-content: center;
-      padding: max(24px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+        radial-gradient(circle at 15% 6%, rgba(255,255,255,.95) 0 7%, transparent 27%),
+        radial-gradient(circle at 94% 8%, rgba(255,215,218,.52) 0 6%, transparent 25%),
+        linear-gradient(165deg, var(--paper), var(--paper2));
+      padding:
+        max(18px, env(safe-area-inset-top))
+        14px
+        max(28px, env(safe-area-inset-bottom));
+      overflow-x: hidden;
     }
-    .app { width: min(100%, 430px); }
-    .brand {
+
+    body::before,
+    body::after {
+      position: fixed;
+      pointer-events: none;
+      opacity: .20;
+      font-size: 140px;
+      z-index: -1;
+    }
+    body::before { content: "🌸"; top: -38px; left: -45px; transform: rotate(-18deg); }
+    body::after  { content: "🌸"; right: -42px; bottom: -45px; transform: rotate(17deg); }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+    }
+
+    .hero {
       text-align: center;
-      margin: 10px 0 22px;
+      padding: 8px 8px 0;
     }
-    .brand .moon { font-size: 44px; }
-    h1 {
-      margin: 4px 0 6px;
+
+    .knot {
       font-size: 30px;
+      color: var(--pink);
+      line-height: 1;
+    }
+
+    h1 {
+      margin: 4px 0 4px;
+      font-size: clamp(38px, 11vw, 58px);
+      line-height: 1.05;
+      letter-spacing: .12em;
+      font-weight: 700;
+    }
+
+    .hero-sub {
+      margin: 10px 0 14px;
+      color: var(--soft-ink);
+      font-size: 15px;
       letter-spacing: .08em;
     }
-    .subtitle {
-      margin: 0;
-      font-size: 14px;
-      opacity: .75;
+
+    .today-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.68);
+      font-size: 13px;
+      box-shadow: 0 8px 22px rgba(135, 81, 66, .08);
     }
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: 28px;
+
+    .stage {
+      position: relative;
+      margin-top: 17px;
+      padding: 20px 17px 18px;
+      border: 1.5px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(rgba(255,255,255,.78), rgba(255,255,255,.88)),
+        radial-gradient(circle at 15% 20%, #ffd8d4 0 2px, transparent 3px);
       box-shadow: var(--shadow);
-      padding: 24px;
-      backdrop-filter: blur(12px);
+      overflow: hidden;
     }
-    .draw-area { text-align: center; }
-    .omikuji-box {
-      width: 112px;
-      height: 150px;
-      margin: 4px auto 20px;
-      border-radius: 18px 18px 28px 28px;
-      background: linear-gradient(180deg, #f6b6cb, #d982a6);
-      box-shadow: inset 0 0 0 6px rgba(255,255,255,.2), 0 12px 26px rgba(196, 103, 144, .25);
+
+    .stage::before {
+      content: "✿  ✿  ✿";
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      color: rgba(211, 103, 96, .20);
+      letter-spacing: 8px;
+      font-size: 22px;
+    }
+
+    .intro {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 16px;
+      letter-spacing: .05em;
+    }
+
+    .character-wrap {
+      min-height: 390px;
       display: grid;
-      place-items: center;
-      color: white;
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      writing-mode: vertical-rl;
+      place-items: end center;
+      margin: 0 -18px -14px;
+      pointer-events: none;
     }
+
+    .character {
+      width: min(93%, 430px);
+      max-height: 430px;
+      object-fit: contain;
+      object-position: bottom center;
+      filter: drop-shadow(0 13px 12px rgba(101, 58, 43, .16));
+    }
+
+    .draw-panel {
+      position: relative;
+      margin-top: -9px;
+      padding: 17px;
+      border-radius: 23px;
+      background: rgba(255, 250, 247, .94);
+      border: 1px solid var(--line);
+    }
+
     button {
       appearance: none;
       border: 0;
       width: 100%;
-      padding: 16px 20px;
-      border-radius: 18px;
-      font-size: 17px;
-      font-weight: 700;
+      min-height: 64px;
+      border-radius: 999px;
+      padding: 14px 22px;
       color: white;
-      background: linear-gradient(135deg, #e49ab7, #9d87d8);
-      box-shadow: 0 10px 22px rgba(159, 115, 184, .25);
+      font-family: inherit;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      background: linear-gradient(135deg, #ef9a9a, #dc7478);
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.28),
+        0 11px 22px rgba(196, 82, 91, .23);
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease;
     }
-    button:active { transform: scale(.985); }
-    button:disabled {
-      opacity: .55;
-      box-shadow: none;
-    }
+
+    button:active { transform: scale(.98); }
+    button:hover { filter: brightness(1.02); }
+
     .note {
-      margin: 13px 0 0;
+      text-align: center;
+      color: var(--soft-ink);
+      margin: 12px 0 0;
       font-size: 13px;
-      opacity: .68;
+      line-height: 1.6;
     }
-    .result { display: none; }
-    .result.show { display: block; animation: pop .55s ease both; }
-    @keyframes pop {
-      from { opacity: 0; transform: translateY(12px) scale(.98); }
-      to { opacity: 1; transform: none; }
+
+    .result {
+      display: none;
+      margin-top: 17px;
+      padding: 22px 18px;
+      border-radius: 28px;
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow);
     }
+
+    .result.show {
+      display: block;
+      animation: appear .55s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(14px) scale(.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
     .rank-wrap {
       text-align: center;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(90,70,100,.1);
+      padding-bottom: 17px;
+      border-bottom: 1px dashed var(--line);
     }
+
+    .rank-label {
+      font-size: 13px;
+      color: var(--soft-ink);
+      letter-spacing: .14em;
+    }
+
     .rank {
-      font-size: 42px;
-      font-weight: 800;
-      letter-spacing: .1em;
-      margin: 0;
+      margin: 7px 0 2px;
+      font-size: clamp(44px, 14vw, 66px);
+      letter-spacing: .10em;
+      color: var(--red);
+      line-height: 1.1;
     }
+
     .rank-sub {
-      margin-top: 6px;
+      color: var(--soft-ink);
       font-size: 14px;
-      opacity: .72;
     }
+
     .message {
-      font-size: 17px;
-      line-height: 1.85;
-      margin: 20px 0;
       text-align: center;
+      font-size: 17px;
+      line-height: 1.9;
+      margin: 21px 4px;
     }
+
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 11px;
     }
-    .mini {
-      background: rgba(248,244,252,.9);
+
+    .mini, .action {
+      border: 1px solid rgba(204, 114, 104, .15);
+      background: rgba(255, 243, 241, .82);
       border-radius: 18px;
       padding: 15px;
-      min-height: 105px;
     }
-    .mini .label {
+
+    .mini { min-height: 104px; }
+    .action { margin-top: 11px; }
+
+    .label {
+      color: var(--soft-ink);
       font-size: 12px;
-      opacity: .62;
       margin-bottom: 8px;
     }
-    .mini .value {
+
+    .value {
+      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
       font-size: 16px;
+      line-height: 1.5;
       font-weight: 700;
-      line-height: 1.45;
     }
-    .action {
-      margin-top: 12px;
+
+    .profile {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 15px;
+      align-items: center;
+      margin-top: 17px;
       padding: 17px;
-      border-radius: 18px;
-      background: rgba(255, 245, 249, .95);
+      border-radius: 25px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.69);
     }
-    .action .label {
-      font-size: 12px;
-      opacity: .62;
-      margin-bottom: 7px;
+
+    .profile img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 7px 17px rgba(110, 61, 47, .13);
     }
-    .action .value {
-      font-size: 16px;
-      font-weight: 700;
+
+    .profile h2 {
+      font-size: 18px;
+      margin: 0 0 6px;
+      letter-spacing: .07em;
     }
-    .footer {
+
+    .profile p {
+      margin: 0;
+      color: var(--soft-ink);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    footer {
       text-align: center;
+      color: var(--soft-ink);
+      opacity: .72;
       font-size: 12px;
-      opacity: .55;
-      margin: 18px 0 0;
+      margin: 20px 0 0;
+      line-height: 1.7;
     }
-    .sparkle {
+
+    .petal {
       position: fixed;
+      top: -40px;
       pointer-events: none;
-      z-index: 10;
-      font-size: 22px;
-      animation: fly 1.4s ease-out forwards;
+      z-index: 20;
+      animation: fall linear forwards;
+      will-change: transform, opacity;
     }
-    @keyframes fly {
-      0% { opacity: 0; transform: translateY(20px) scale(.5) rotate(0deg); }
-      25% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(-180px) scale(1.2) rotate(160deg); }
+
+    @keyframes fall {
+      0%   { opacity: 0; transform: translate3d(0,-25px,0) rotate(0deg); }
+      12%  { opacity: .95; }
+      100% { opacity: 0; transform: translate3d(var(--drift),105vh,0) rotate(560deg); }
+    }
+
+    @media (max-width: 390px) {
+      .character-wrap { min-height: 330px; }
+      .character { max-height: 370px; }
+      .profile { grid-template-columns: 74px 1fr; }
+      .profile img { width: 74px; height: 74px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <header class="brand">
-      <div class="moon">🌙</div>
-      <h1>おまもりみくじ</h1>
-      <p class="subtitle">今日のあなたに、やさしい運だめし</p>
+    <header class="hero">
+      <div class="knot">⌁୨୧⌁</div>
+      <h1>おまもり<br>みくじ</h1>
+      <p class="hero-sub">ちゃろまるが、今日のおまもりを授けます</p>
+      <div class="today-chip">🌸 今日のおみくじ・1日1回</div>
     </header>
 
-    <section class="card draw-area" id="drawCard">
-      <div class="omikuji-box">おみくじ</div>
-      <button id="drawBtn">今日のおみくじを引く</button>
-      <p class="note">1日1回だけ引けます</p>
+    <section class="stage" id="drawCard">
+      <p class="intro">巫女ねこ・ちゃろまる</p>
+      <div class="character-wrap">
+        <img class="character" src="charomaru-miko.png" alt="巫女姿のちゃろまる">
+      </div>
+      <div class="draw-panel">
+        <button id="drawBtn">🐾 おみくじをひく</button>
+        <p class="note">今日のあなたに、やさしい言葉と小さなおまもりをお届けします。</p>
+      </div>
     </section>
 
-    <section class="card result" id="resultCard">
+    <section class="result" id="resultCard" aria-live="polite">
       <div class="rank-wrap">
+        <div class="rank-label">今日の運勢</div>
         <p class="rank" id="rank"></p>
         <div class="rank-sub" id="rankSub"></div>
       </div>
+
       <div class="message" id="message"></div>
 
       <div class="grid">
@@ -209,17 +376,28 @@
       </div>
 
       <div class="action">
-        <div class="label">今日の開運アクション</div>
+        <div class="label">ちゃろまるからの開運アクション</div>
         <div class="value" id="action"></div>
       </div>
     </section>
 
-    <p class="footer">どの結果も、今日を少し明るくするためのおみくじです。</p>
+    <section class="profile">
+      <img src="apple-touch-icon.png" alt="ちゃろまるの顔">
+      <div>
+        <h2>ちゃろまるについて</h2>
+        <p>やさしくて、食いしん坊な巫女ねこ。毎日をそっと見守り、少し元気になれる言葉を届けます。</p>
+      </div>
+    </section>
+
+    <footer>
+      今日も、あなたにやさしいご縁がありますように。<br>
+      © 2026 charomaru. All rights reserved.
+    </footer>
   </main>
 
 <script>
 const ranks = [
-  { name: "超大吉", weight: 1, sub: "きらめく特別な一日" },
+  { name: "超大吉", weight: 1, sub: "特別な追い風が吹く一日" },
   { name: "大吉",   weight: 9, sub: "うれしい流れに乗れそう" },
   { name: "吉",     weight: 35, sub: "穏やかに運が味方する日" },
   { name: "中吉",   weight: 30, sub: "少しずつ良い方向へ" },
@@ -228,43 +406,43 @@ const ranks = [
 ];
 
 const messages = [
-  "今日は自分のペースを大切にすると、自然と良い流れが生まれそう。",
-  "ちょっとした勇気が、思っていた以上のうれしい出来事につながりそう。",
-  "笑顔でいる時間を増やすと、あなたの魅力がいつも以上に輝く日。",
-  "迷ったときは、心が少し軽くなる方を選ぶとよさそう。",
-  "今日できたことを一つ見つけて、自分をたくさん褒めてあげて。",
-  "無理をしすぎなくて大丈夫。ゆっくり進むことも立派な前進です。",
-  "身近な人との何気ない会話に、うれしいヒントがありそう。",
-  "新しいことを始めるなら、今日は小さな一歩がぴったり。",
-  "好きなものに触れる時間が、運気をやさしく整えてくれそう。",
-  "あなたが思っている以上に、今日は味方の多い一日です。"
+  "緊張する日は、うまく見せようとしなくて大丈夫。あなたらしい言葉が、きっと相手に届きます。",
+  "今日のあなたには、思っている以上に味方がいます。深呼吸して、自分の歩幅で進みましょう。",
+  "少しの勇気が、新しいご縁を運んできそう。まずは笑顔で一歩を踏み出してみて。",
+  "迷ったときは、心が少し軽くなる方を選んで。ちゃろまるがそっと応援しています。",
+  "今日できたことを一つ見つけて、自分をたくさん褒めてあげてください。",
+  "無理をしすぎなくて大丈夫。ゆっくり進むことも、立派な前進です。",
+  "何気ない会話の中に、うれしいヒントがありそう。相手の言葉をゆっくり聞いてみて。",
+  "新しいことを始めるなら、今日は小さな一歩がぴったりです。",
+  "好きなものに触れる時間が、心と運をやさしく整えてくれそう。",
+  "あなたのまっすぐな気持ちは、きっと伝わります。今日も自分を信じて。"
 ];
 
 const colors = [
-  "🩵 空色", "🩷 桜色", "💜 ラベンダー", "💛 レモン色",
-  "🤍 パールホワイト", "💚 ミントグリーン", "🧡 アプリコット", "💙 ネイビー"
+  "🩷 桜色", "🤍 パールホワイト", "🧡 アプリコット",
+  "💛 山吹色", "💚 若草色", "🩵 空色", "💜 藤色", "❤️ 朱色"
 ];
 
 const items = [
   "お気に入りのノート", "小さな鏡", "ハンカチ", "イヤホン",
-  "ヘアアクセサリー", "お気に入りのペン", "星のモチーフ", "リップクリーム",
+  "髪飾り", "お気に入りのペン", "猫のモチーフ", "リップクリーム",
   "香りのよいハンドクリーム", "小さなポーチ"
 ];
 
 const actions = [
-  "「ありがとう」を一回多く言ってみる",
+  "「ありがとう」を一回多く伝える",
   "好きな音楽を一曲聴く",
   "机の上を少しだけ整える",
   "空を見上げて深呼吸する",
   "温かい飲み物をゆっくり飲む",
   "今日のよかったことを一つ書く",
-  "いつもより少し早く寝る",
-  "鏡の前で笑ってみる",
+  "いつもより少し早く休む",
+  "鏡の前でやさしく笑ってみる",
   "気になっていたことを5分だけ始める",
   "大切な人にやさしい言葉をかける"
 ];
 
-const KEY = "omamori_mikuji_v1";
+const KEY = "omamori_mikuji_v2";
 
 function todayKey() {
   const d = new Date();
@@ -272,11 +450,11 @@ function todayKey() {
 }
 
 function pickWeighted(list) {
-  const total = list.reduce((s, x) => s + x.weight, 0);
-  let r = Math.random() * total;
-  for (const x of list) {
-    r -= x.weight;
-    if (r < 0) return x;
+  const total = list.reduce((sum, item) => sum + item.weight, 0);
+  let random = Math.random() * total;
+  for (const item of list) {
+    random -= item.weight;
+    if (random < 0) return item;
   }
   return list[list.length - 1];
 }
@@ -294,20 +472,23 @@ function render(result) {
   document.getElementById("color").textContent = result.color;
   document.getElementById("item").textContent = result.item;
   document.getElementById("action").textContent = result.action;
+  setTimeout(() => document.getElementById("resultCard").scrollIntoView({behavior:"smooth", block:"center"}), 180);
 }
 
-function sparkleBurst(extra = false) {
-  const icons = extra ? ["✨","🌸","⭐","💖","🎊"] : ["✨","🌸","⭐"];
-  const count = extra ? 28 : 14;
+function petalBurst(extra = false) {
+  const count = extra ? 34 : 20;
+  const petals = ["🌸", "🌺", "✨"];
   for (let i = 0; i < count; i++) {
-    const el = document.createElement("div");
-    el.className = "sparkle";
-    el.textContent = pick(icons);
-    el.style.left = `${8 + Math.random() * 84}vw`;
-    el.style.top = `${55 + Math.random() * 25}vh`;
-    el.style.animationDelay = `${Math.random() * .35}s`;
+    const el = document.createElement("span");
+    el.className = "petal";
+    el.textContent = petals[Math.floor(Math.random() * petals.length)];
+    el.style.left = `${Math.random() * 100}vw`;
+    el.style.fontSize = `${14 + Math.random() * 14}px`;
+    el.style.setProperty("--drift", `${-80 + Math.random() * 160}px`);
+    el.style.animationDuration = `${2.7 + Math.random() * 2.5}s`;
+    el.style.animationDelay = `${Math.random() * .65}s`;
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1800);
+    setTimeout(() => el.remove(), 6000);
   }
 }
 
@@ -322,7 +503,7 @@ function draw() {
   };
   localStorage.setItem(KEY, JSON.stringify(result));
   render(result);
-  sparkleBurst(result.rank.name === "超大吉" || result.rank.name === "大吉");
+  petalBurst(result.rank.name === "超大吉" || result.rank.name === "大吉");
 }
 
 document.getElementById("drawBtn").addEventListener("click", draw);
@@ -332,7 +513,7 @@ try {
   if (saved && saved.date === todayKey()) {
     render(saved);
   }
-} catch (e) {
+} catch (error) {
   localStorage.removeItem(KEY);
 }
 </script>
