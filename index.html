@@ -1,469 +1,485 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff7f2">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fff5f2">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="おまもりみくじ">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <title>おまもりみくじ｜ちゃろまる</title>
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <title>おまもりみくじ</title>
   <style>
-    :root {
-      --paper: #fffaf5;
-      --paper2: #fff1ed;
-      --ink: #5b3025;
-      --soft-ink: #80594d;
-      --red: #c94e45;
-      --pink: #ed9999;
-      --deep-pink: #df7779;
-      --line: rgba(193, 91, 79, .23);
-      --card: rgba(255, 252, 248, .91);
-      --shadow: 0 18px 45px rgba(124, 72, 54, .13);
-    }
-
     * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
+    :root {
+      --ink: #5c392f;
+      --soft: #85675e;
+      --pink: #dc7f86;
+      --pink-light: #f4b1b3;
+      --paper: rgba(255,255,255,.92);
+      --line: rgba(186,108,103,.22);
+    }
 
     body {
       margin: 0;
       min-height: 100vh;
+      padding: 20px 14px 36px;
       color: var(--ink);
-      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho",
-                   "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+                   "Yu Gothic", "Meiryo", sans-serif;
       background:
-        radial-gradient(circle at 15% 6%, rgba(255,255,255,.95) 0 7%, transparent 27%),
-        radial-gradient(circle at 94% 8%, rgba(255,215,218,.52) 0 6%, transparent 25%),
-        linear-gradient(165deg, var(--paper), var(--paper2));
-      padding:
-        max(18px, env(safe-area-inset-top))
-        14px
-        max(28px, env(safe-area-inset-bottom));
-      overflow-x: hidden;
+        radial-gradient(circle at 12% 5%, rgba(255,255,255,.95), transparent 28%),
+        radial-gradient(circle at 90% 12%, rgba(255,210,214,.5), transparent 26%),
+        linear-gradient(160deg, #fffaf5, #fff0ed);
     }
-
-    body::before,
-    body::after {
-      position: fixed;
-      pointer-events: none;
-      opacity: .20;
-      font-size: 140px;
-      z-index: -1;
-    }
-    body::before { content: "🌸"; top: -38px; left: -45px; transform: rotate(-18deg); }
-    body::after  { content: "🌸"; right: -42px; bottom: -45px; transform: rotate(17deg); }
 
     .app {
       width: min(100%, 520px);
       margin: 0 auto;
     }
 
-    .hero {
+    header {
       text-align: center;
-      padding: 8px 8px 0;
+      margin-bottom: 16px;
     }
 
-    .knot {
-      font-size: 30px;
-      color: var(--pink);
-      line-height: 1;
+    .flower {
+      font-size: 27px;
+      margin-bottom: 4px;
     }
 
     h1 {
-      margin: 4px 0 4px;
-      font-size: clamp(38px, 11vw, 58px);
-      line-height: 1.05;
-      letter-spacing: .12em;
-      font-weight: 700;
+      margin: 0;
+      font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(36px, 10vw, 54px);
+      letter-spacing: .10em;
+      line-height: 1.2;
     }
 
-    .hero-sub {
-      margin: 10px 0 14px;
-      color: var(--soft-ink);
-      font-size: 15px;
-      letter-spacing: .08em;
+    .subtitle {
+      margin: 8px 0 12px;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.7;
     }
 
-    .today-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 15px;
+    .date {
+      display: inline-block;
+      padding: 8px 14px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(255,255,255,.68);
+      background: rgba(255,255,255,.7);
+      color: var(--soft);
       font-size: 13px;
-      box-shadow: 0 8px 22px rgba(135, 81, 66, .08);
     }
 
-    .stage {
-      position: relative;
-      margin-top: 17px;
-      padding: 20px 17px 18px;
-      border: 1.5px solid var(--line);
-      border-radius: 30px;
-      background:
-        linear-gradient(rgba(255,255,255,.78), rgba(255,255,255,.88)),
-        radial-gradient(circle at 15% 20%, #ffd8d4 0 2px, transparent 3px);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+    .main-card,
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: 0 16px 36px rgba(113,66,53,.12);
     }
 
-    .stage::before {
-      content: "✿  ✿  ✿";
-      position: absolute;
-      right: 16px;
-      top: 12px;
-      color: rgba(211, 103, 96, .20);
-      letter-spacing: 8px;
-      font-size: 22px;
-    }
-
-    .intro {
-      margin: 0 0 6px;
+    .main-card {
+      padding: 20px 18px 18px;
       text-align: center;
-      font-size: 16px;
-      letter-spacing: .05em;
     }
 
-    .character-wrap {
-      min-height: 390px;
-      display: grid;
-      place-items: end center;
-      margin: 0 -18px -14px;
-      pointer-events: none;
+    .welcome {
+      margin: 0 0 10px;
+      line-height: 1.8;
+      font-size: 15px;
     }
 
     .character {
-      width: min(93%, 430px);
-      max-height: 430px;
+      display: block;
+      width: min(100%, 390px);
+      max-height: 420px;
       object-fit: contain;
-      object-position: bottom center;
-      filter: drop-shadow(0 13px 12px rgba(101, 58, 43, .16));
-    }
-
-    .draw-panel {
-      position: relative;
-      margin-top: -9px;
-      padding: 17px;
-      border-radius: 23px;
-      background: rgba(255, 250, 247, .94);
-      border: 1px solid var(--line);
+      margin: 0 auto 4px;
+      filter: drop-shadow(0 10px 10px rgba(91,51,42,.15));
     }
 
     button {
-      appearance: none;
-      border: 0;
       width: 100%;
-      min-height: 64px;
+      min-height: 60px;
+      border: 0;
       border-radius: 999px;
-      padding: 14px 22px;
-      color: white;
-      font-family: inherit;
-      font-size: 19px;
+      padding: 13px 20px;
+      font: inherit;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: .08em;
-      background: linear-gradient(135deg, #ef9a9a, #dc7478);
-      box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.28),
-        0 11px 22px rgba(196, 82, 91, .23);
+      letter-spacing: .07em;
       cursor: pointer;
-      transition: transform .15s ease, filter .15s ease;
     }
 
-    button:active { transform: scale(.98); }
-    button:hover { filter: brightness(1.02); }
+    #drawBtn {
+      color: white;
+      background: linear-gradient(135deg, var(--pink-light), var(--pink));
+      box-shadow: 0 10px 21px rgba(196,89,99,.24);
+    }
 
-    .note {
-      text-align: center;
-      color: var(--soft-ink);
-      margin: 12px 0 0;
-      font-size: 13px;
+    button:active {
+      transform: scale(.985);
+    }
+
+    .notice {
+      margin: 10px 0 0;
+      color: var(--soft);
+      font-size: 12px;
       line-height: 1.6;
     }
 
-    .result {
+    .result-card {
       display: none;
       margin-top: 17px;
-      padding: 22px 18px;
-      border-radius: 28px;
-      background: var(--card);
-      border: 1.5px solid var(--line);
-      box-shadow: var(--shadow);
+      padding: 20px 17px;
+      text-align: center;
     }
 
-    .result.show {
+    .result-card.show {
       display: block;
-      animation: appear .55s cubic-bezier(.2,.8,.2,1) both;
+      animation: appear .45s ease both;
     }
 
     @keyframes appear {
-      from { opacity: 0; transform: translateY(14px) scale(.98); }
-      to   { opacity: 1; transform: none; }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .rank-wrap {
-      text-align: center;
-      padding-bottom: 17px;
-      border-bottom: 1px dashed var(--line);
-    }
-
-    .rank-label {
+    .result-label {
+      color: var(--soft);
       font-size: 13px;
-      color: var(--soft-ink);
-      letter-spacing: .14em;
+      letter-spacing: .12em;
     }
 
     .rank {
-      margin: 7px 0 2px;
-      font-size: clamp(44px, 14vw, 66px);
-      letter-spacing: .10em;
-      color: var(--red);
+      margin: 8px 0 0;
+      color: #bf554f;
+      font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+      font-size: clamp(48px, 15vw, 68px);
       line-height: 1.1;
+      letter-spacing: .09em;
     }
 
-    .rank-sub {
-      color: var(--soft-ink);
+    .reading {
+      margin: 4px 0 16px;
+      color: var(--soft);
       font-size: 14px;
     }
 
+    .fortune-image {
+      display: block;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto 17px;
+      border-radius: 18px;
+      box-shadow: 0 9px 22px rgba(98,60,49,.13);
+    }
+
     .message {
-      text-align: center;
+      margin: 10px 2px 18px;
+      font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
       font-size: 17px;
       line-height: 1.9;
-      margin: 21px 4px;
     }
 
-    .grid {
+    .details {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 11px;
+      gap: 10px;
+      text-align: left;
     }
 
-    .mini, .action {
-      border: 1px solid rgba(204, 114, 104, .15);
-      background: rgba(255, 243, 241, .82);
-      border-radius: 18px;
-      padding: 15px;
+    .detail {
+      min-height: 98px;
+      padding: 13px;
+      border: 1px solid rgba(186,108,103,.14);
+      border-radius: 16px;
+      background: #fff6f3;
     }
 
-    .mini { min-height: 104px; }
-    .action { margin-top: 11px; }
+    .detail.action {
+      grid-column: 1 / -1;
+      min-height: auto;
+    }
 
-    .label {
-      color: var(--soft-ink);
+    .detail-label {
+      margin-bottom: 7px;
+      color: var(--soft);
       font-size: 12px;
-      margin-bottom: 8px;
     }
 
-    .value {
-      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
+    .detail-value {
+      line-height: 1.6;
       font-weight: 700;
     }
 
-    .profile {
-      display: grid;
-      grid-template-columns: 90px 1fr;
-      gap: 15px;
-      align-items: center;
-      margin-top: 17px;
-      padding: 17px;
-      border-radius: 25px;
+    #shareBtn {
+      margin-top: 15px;
+      color: var(--ink);
+      background: white;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,.69);
     }
 
-    .profile img {
-      width: 90px;
-      height: 90px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid #fff;
-      box-shadow: 0 7px 17px rgba(110, 61, 47, .13);
-    }
-
-    .profile h2 {
-      font-size: 18px;
-      margin: 0 0 6px;
-      letter-spacing: .07em;
-    }
-
-    .profile p {
-      margin: 0;
-      color: var(--soft-ink);
-      font-size: 13px;
-      line-height: 1.7;
+    #shareStatus {
+      min-height: 1.5em;
+      margin: 8px 0 0;
+      color: var(--soft);
+      font-size: 12px;
     }
 
     footer {
+      margin-top: 18px;
       text-align: center;
-      color: var(--soft-ink);
-      opacity: .72;
+      color: var(--soft);
       font-size: 12px;
-      margin: 20px 0 0;
       line-height: 1.7;
     }
 
-    .petal {
-      position: fixed;
-      top: -40px;
-      pointer-events: none;
-      z-index: 20;
-      animation: fall linear forwards;
-      will-change: transform, opacity;
-    }
-
-    @keyframes fall {
-      0%   { opacity: 0; transform: translate3d(0,-25px,0) rotate(0deg); }
-      12%  { opacity: .95; }
-      100% { opacity: 0; transform: translate3d(var(--drift),105vh,0) rotate(560deg); }
-    }
-
-
-    .result-image { width:100%; display:block; border-radius:20px; border:1px solid var(--line); margin-bottom:14px; }
-    @media (max-width: 390px) {
-      .character-wrap { min-height: 330px; }
-      .character { max-height: 370px; }
-      .profile { grid-template-columns: 74px 1fr; }
-      .profile img { width: 74px; height: 74px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    @media (max-width: 380px) {
+      .details { grid-template-columns: 1fr; }
+      .detail.action { grid-column: auto; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <header class="hero">
-      <div class="knot">⌁୨୧⌁</div>
-      <h1>おまもり<br>みくじ</h1>
-      <p class="hero-sub">ちゃろまるとピーちゃんが、今日のおまもりを届けます</p>
-      <div class="today-chip">🌸 1日1回・どれも良いおまもりです</div>
+    <header>
+      <div class="flower" aria-hidden="true">🌸</div>
+      <h1>おまもりみくじ</h1>
+      <p class="subtitle">ちゃろまる神社から、今日のあなたへ<br>小さなおまもりをお届けします。</p>
+      <div class="date" id="today"></div>
     </header>
 
-    <section class="stage" id="drawCard">
-      <p class="intro">巫女ねこ・ちゃろまる</p>
-      <div class="character-wrap">
-        <img class="character" src="charomaru-miko.png" alt="巫女姿のちゃろまる">
-      </div>
-      <div class="draw-panel">
-        <button id="drawBtn">🐾 おまもりをひく</button>
-        <p class="note">順位ではなく、今日のあなたに届く「良いことの種類」です。</p>
-      </div>
+    <section class="main-card">
+      <p class="welcome">巫女ねこ・ちゃろまるとピーちゃんが<br>やさしい吉を選びます。</p>
+      <img class="character" src="./charomaru-miko.png" alt="巫女姿のちゃろまる">
+      <button id="drawBtn" type="button">今日のおまもりをひく</button>
+      <p class="notice">どのおまもりも順位ではありません。<br>今日のあなたに合う、五つの祝福のひとつです。</p>
     </section>
 
-    <section class="result" id="resultCard" aria-live="polite">
-      <div class="rank-wrap">
-        <div class="rank-label">今日のおまもり</div>
-        <p class="rank" id="rank"></p>
-        <div class="rank-sub" id="reading"></div>
-        <div class="rank-sub" id="rankSub"></div>
-      </div>
+    <section class="result-card" id="resultCard" aria-live="polite">
+      <div class="result-label">今日のおまもり</div>
+      <div class="rank" id="rank"></div>
+      <div class="reading" id="reading"></div>
+      <img class="fortune-image" id="fortuneImage" src="" alt="">
+      <p class="message" id="message"></p>
 
-      <div class="message" id="message"></div>
-
-      <div class="grid">
-        <div class="mini">
-          <div class="label">ラッキーカラー</div>
-          <div class="value" id="color"></div>
+      <div class="details">
+        <div class="detail">
+          <div class="detail-label">ラッキーカラー</div>
+          <div class="detail-value" id="color"></div>
         </div>
-        <div class="mini">
-          <div class="label">ラッキーアイテム</div>
-          <div class="value" id="item"></div>
+        <div class="detail">
+          <div class="detail-label">ラッキーアイテム</div>
+          <div class="detail-value" id="item"></div>
+        </div>
+        <div class="detail action">
+          <div class="detail-label">今日のおまもり行動</div>
+          <div class="detail-value" id="action"></div>
         </div>
       </div>
 
-      <div class="action">
-        <div class="label">ちゃろまるとピーちゃんからの開運アクション</div>
-        <div class="value" id="action"></div>
-      </div>
-
-      <div class="action" style="text-align:center;">
-        <div class="label">今日のおまもりを、大切な人にも</div>
-        <div class="value" id="shareCopy" style="margin-bottom:12px;"></div>
-        <button id="shareBtn" style="min-height:54px;font-size:16px;">🌸 今日のおまもりを届ける</button>
-        <div class="label" id="shareStatus" style="margin-top:10px;margin-bottom:0;"></div>
-      </div>
-    </section>
-
-    <section class="profile">
-      <img src="apple-touch-icon.png" alt="ちゃろまるの顔">
-      <div>
-        <h2>ちゃろまるとピーちゃん</h2>
-        <p>穏やかに見守るちゃろまると、元気を届けるピーちゃん。ふたりはいつでもあなたの味方です。</p>
-      </div>
+      <button id="shareBtn" type="button">このおまもりを共有する</button>
+      <p id="shareStatus"></p>
     </section>
 
     <footer>
-      今日も、あなたにやさしいご縁がありますように。<br>
-      © 2026 charomaru. All rights reserved.
+      未来を決める占いではなく、今日を少しやさしくするおまもりです。<br>
+      © ちゃろまる神社
     </footer>
   </main>
 
-<script>
-const omamori = [
-  {name:"神吉", reading:"かみきち", theme:"特別な幸運・後押し", image:"kamiyoshi.png", messages:["今日は見えない追い風が、そっとあなたを後押ししてくれそうです。","思いがけない幸運に出会えるかもしれません。感謝の気持ちを忘れずに。"]},
-  {name:"嬉吉", reading:"うれきち", theme:"喜び・笑顔", image:"ureshiyoshi.png", messages:["小さなうれしいことが、いつもよりたくさん見つかりそうです。","あなたの笑顔が、周りの人にも明るい気持ちを届けます。"]},
-  {name:"縁吉", reading:"えんきち", theme:"出会い・つながり", image:"en_yoshi.png", messages:["人とのつながりが、今日のあなたに優しい力をくれそうです。","何気ない会話の中に、素敵なご縁の種が隠れています。"]},
-  {name:"福吉", reading:"ふくきち", theme:"日常の小さな幸せ", image:"fukuyoshi.png", messages:["当たり前の一日の中に、小さな福がいくつも隠れています。","身近な幸せに気づくほど、心があたたかくなる日です。"]},
-  {name:"優吉", reading:"やさきち", theme:"優しさ・癒やし", image:"yuuyoshi.png", messages:["誰かの優しさに触れて、心がふっと軽くなりそうです。","あなたの優しさも、きっと誰かのおまもりになります。"]}
-];
-const colors=["🩷 桜色","🤍 パールホワイト","🧡 アプリコット","💛 山吹色","💚 若草色","🩵 空色","💜 藤色","❤️ 朱色"];
-const items=["お気に入りのノート","小さな鏡","ハンカチ","イヤホン","髪飾り","お気に入りのペン","猫のモチーフ","鳥のモチーフ","リップクリーム","小さなポーチ"];
-const actions=["「ありがとう」を一回多く伝える","好きな音楽を一曲聴く","机の上を少しだけ整える","空を見上げて深呼吸する","温かい飲み物をゆっくり飲む","今日のよかったことを一つ書く","いつもより少し早く休む","鏡の前でやさしく笑ってみる","気になっていたことを5分だけ始める","大切な人にやさしい言葉をかける"];
-const KEY="omamori_mikuji_v4";
-function todayKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
-function pick(list){return list[Math.floor(Math.random()*list.length)]}
-function render(r){
-  document.getElementById("drawCard").style.display="none";
-  const card=document.getElementById("resultCard"); card.classList.add("show");
-  let image=document.getElementById("resultImage");
-  if(!image){image=document.createElement("img");image.id="resultImage";image.className="result-image";card.insertBefore(image,card.firstChild);}
-  image.src=r.image; image.alt=`${r.name}のちゃろまるとピーちゃん`;
-  document.getElementById("rank").textContent=r.name;
-  document.getElementById("reading").textContent=`（${r.reading}）`;
-  document.getElementById("rankSub").textContent=r.theme;
-  document.getElementById("shareCopy").textContent=`今日は「${r.reading}」でした。あなたは、どんなふうに受け取りますか？`;
-  document.getElementById("message").textContent=r.message;
-  document.getElementById("color").textContent=r.color;
-  document.getElementById("item").textContent=r.item;
-  document.getElementById("action").textContent=r.action;
-  setTimeout(()=>card.scrollIntoView({behavior:"smooth",block:"start"}),180);
-}
-function petalBurst(){const petals=["🌸","🌺","✨"];for(let i=0;i<24;i++){const el=document.createElement("span");el.className="petal";el.textContent=pick(petals);el.style.left=`${Math.random()*100}vw`;el.style.fontSize=`${14+Math.random()*14}px`;el.style.setProperty("--drift",`${-80+Math.random()*160}px`);el.style.animationDuration=`${2.7+Math.random()*2.5}s`;el.style.animationDelay=`${Math.random()*.65}s`;document.body.appendChild(el);setTimeout(()=>el.remove(),6000);}}
-function draw(){const o=pick(omamori);const r={date:todayKey(),name:o.name,reading:o.reading,theme:o.theme,image:o.image,message:pick(o.messages),color:pick(colors),item:pick(items),action:pick(actions)};localStorage.setItem(KEY,JSON.stringify(r));render(r);petalBurst();}
+  <script>
+    "use strict";
 
-async function shareResult(){
-  const saved=JSON.parse(localStorage.getItem(KEY));
-  if(!saved) return;
-  const url=location.href.split("#")[0];
-  const text=`今日のおまもりは「${saved.name}（${saved.reading}）」でした🌸\n${saved.message}\n\nちゃろまるとピーちゃんの おまもりみくじ`;
-  const status=document.getElementById("shareStatus");
-  try{
-    if(navigator.share){
-      await navigator.share({title:"おまもりみくじ",text,url});
-      status.textContent="おまもりを届けました。";
-    }else if(navigator.clipboard){
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      status.textContent="結果とリンクをコピーしました。";
-    }else{
-      status.textContent="この端末では共有機能を利用できません。";
+    const fortunes = [
+      {
+        name: "神吉",
+        reading: "かみきち",
+        image: "./kamiyoshi.png",
+        messages: [
+          "今日は、不思議なくらい物事が味方してくれそう。焦らず、心が向くほうへ進んでみて。",
+          "小さな願いが動き始める日。自分の直感を、いつもより少し信じてみよう。"
+        ],
+        colors: ["桜色", "白", "金色"],
+        items: ["小さなお守り", "お気に入りのアクセサリー", "温かい飲み物"],
+        actions: ["一番大切なことを一つだけ決める", "空を見上げて深呼吸する", "心に浮かんだことをメモする"]
+      },
+      {
+        name: "嬉吉",
+        reading: "うれきち",
+        image: "./ureshiyoshi.png",
+        messages: [
+          "思わず笑顔になる出来事が見つかりそう。嬉しい気持ちは、遠慮せず受け取って。",
+          "今日の喜びは、小さなところに隠れています。好きなことに目を向けてみよう。"
+        ],
+        colors: ["みかん色", "桃色", "黄色"],
+        items: ["甘いお菓子", "好きな音楽", "明るい色のハンカチ"],
+        actions: ["嬉しかったことを一つ言葉にする", "好きな曲を一曲聴く", "自分に小さなご褒美をあげる"]
+      },
+      {
+        name: "縁吉",
+        reading: "えんきち",
+        image: "./en_yoshi.png",
+        messages: [
+          "人とのつながりが、やさしい力を運んでくれる日。短い言葉でも、気持ちを伝えてみて。",
+          "思いがけないご縁が、今日の心を温めてくれそう。挨拶を少し丁寧にしてみよう。"
+        ],
+        colors: ["若草色", "水色", "生成り色"],
+        items: ["メッセージカード", "写真", "お気に入りのペン"],
+        actions: ["大切な人に短い連絡をする", "誰かの話をゆっくり聞く", "ありがとうを一度多く伝える"]
+      },
+      {
+        name: "福吉",
+        reading: "ふくきち",
+        image: "./fukuyoshi.png",
+        messages: [
+          "いつもの一日の中に、小さな幸せがいくつも見つかりそう。ゆっくり味わって。",
+          "足元にある福に気づける日。無理に急がず、心地よいペースで過ごそう。"
+        ],
+        colors: ["空色", "クリーム色", "淡い緑"],
+        items: ["お気に入りのカップ", "柔らかいタオル", "季節の食べ物"],
+        actions: ["温かいものをゆっくり飲む", "身の回りを一か所だけ整える", "今日よかったことを三つ探す"]
+      },
+      {
+        name: "優吉",
+        reading: "やさきち",
+        image: "./yuuyoshi.png",
+        messages: [
+          "今日は自分にも人にも、少しやさしくできる日。完璧でなくて大丈夫。",
+          "やさしさは弱さではなく、今日を守る力です。まずは自分をいたわってあげよう。"
+        ],
+        colors: ["藤色", "薄桃色", "ミルク色"],
+        items: ["柔らかいブランケット", "香りのよいもの", "お気に入りの本"],
+        actions: ["自分を責める言葉を一つ手放す", "いつもより少し早く休む", "頑張った自分を褒める"]
+      }
+    ];
+
+    const STORAGE_KEY = "omamori-mikuji-v4-2";
+
+    const $ = (id) => document.getElementById(id);
+    const randomFrom = (array) => array[Math.floor(Math.random() * array.length)];
+
+    function dateKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     }
-  }catch(e){
-    if(e.name!=="AbortError") status.textContent="共有できませんでした。もう一度お試しください。";
-  }
-}
-const shareBtn=document.getElementById("shareBtn");
-if(shareBtn) shareBtn.addEventListener("click",shareResult);
 
-const drawBtn=document.getElementById("drawBtn");
-if(drawBtn) drawBtn.addEventListener("click",draw);
-try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.date===todayKey())render(saved);}catch(e){localStorage.removeItem(KEY);}
-</script>
+    function setToday() {
+      const d = new Date();
+      $("today").textContent = new Intl.DateTimeFormat("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short"
+      }).format(d);
+    }
+
+    function makeFortune() {
+      const base = randomFrom(fortunes);
+      return {
+        date: dateKey(),
+        name: base.name,
+        reading: base.reading,
+        image: base.image,
+        message: randomFrom(base.messages),
+        color: randomFrom(base.colors),
+        item: randomFrom(base.items),
+        action: randomFrom(base.actions)
+      };
+    }
+
+    function saveFortune(fortune) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fortune));
+      } catch (_) {}
+    }
+
+    function loadFortune() {
+      try {
+        const value = localStorage.getItem(STORAGE_KEY);
+        if (!value) return null;
+        const fortune = JSON.parse(value);
+        return fortune.date === dateKey() ? fortune : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function showFortune(fortune) {
+      $("rank").textContent = fortune.name;
+      $("reading").textContent = `（${fortune.reading}）`;
+      $("fortuneImage").src = fortune.image;
+      $("fortuneImage").alt = `${fortune.name}のおまもり`;
+      $("message").textContent = fortune.message;
+      $("color").textContent = fortune.color;
+      $("item").textContent = fortune.item;
+      $("action").textContent = fortune.action;
+      $("resultCard").classList.add("show");
+      $("drawBtn").textContent = "今日のおまもりを見る";
+      setTimeout(() => {
+        $("resultCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+
+    function currentFortune() {
+      const saved = loadFortune();
+      if (saved) return saved;
+      const created = makeFortune();
+      saveFortune(created);
+      return created;
+    }
+
+    async function shareFortune() {
+      const fortune = loadFortune();
+      if (!fortune) {
+        $("shareStatus").textContent = "先に今日のおまもりをひいてください。";
+        return;
+      }
+
+      const text =
+        `今日のおまもりは「${fortune.name}（${fortune.reading}）」でした。` +
+        `\n${fortune.message}\n#おまもりみくじ #ちゃろまる神社`;
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "おまもりみくじ",
+            text: text,
+            url: location.href
+          });
+          $("shareStatus").textContent = "共有画面を開きました。";
+        } else if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(`${text}\n${location.href}`);
+          $("shareStatus").textContent = "共有用の文章をコピーしました。";
+        } else {
+          window.prompt("以下をコピーして共有してください。", `${text}\n${location.href}`);
+          $("shareStatus").textContent = "共有用の文章を表示しました。";
+        }
+      } catch (error) {
+        if (error && error.name !== "AbortError") {
+          $("shareStatus").textContent = "共有できませんでした。もう一度お試しください。";
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      setToday();
+
+      const saved = loadFortune();
+      if (saved) {
+        showFortune(saved);
+      }
+
+      $("drawBtn").addEventListener("click", () => {
+        showFortune(currentFortune());
+      });
+
+      $("shareBtn").addEventListener("click", shareFortune);
+    });
+  </script>
 </body>
 </html>
