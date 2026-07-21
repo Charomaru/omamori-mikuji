@@ -361,6 +361,7 @@
       <div class="rank-wrap">
         <div class="rank-label">今日のおまもり</div>
         <p class="rank" id="rank"></p>
+        <div class="rank-sub" id="reading"></div>
         <div class="rank-sub" id="rankSub"></div>
       </div>
 
@@ -378,8 +379,15 @@
       </div>
 
       <div class="action">
-        <div class="label">ちゃろまるからの開運アクション</div>
+        <div class="label">ちゃろまるとピーちゃんからの開運アクション</div>
         <div class="value" id="action"></div>
+      </div>
+
+      <div class="action" style="text-align:center;">
+        <div class="label">今日のおまもりを、大切な人にも</div>
+        <div class="value" id="shareCopy" style="margin-bottom:12px;"></div>
+        <button id="shareBtn" style="min-height:54px;font-size:16px;">🌸 今日のおまもりを届ける</button>
+        <div class="label" id="shareStatus" style="margin-top:10px;margin-bottom:0;"></div>
       </div>
     </section>
 
@@ -418,7 +426,9 @@ function render(r){
   if(!image){image=document.createElement("img");image.id="resultImage";image.className="result-image";card.insertBefore(image,card.firstChild);}
   image.src=r.image; image.alt=`${r.name}のちゃろまるとピーちゃん`;
   document.getElementById("rank").textContent=r.name;
+  document.getElementById("reading").textContent=`（${r.reading}）`;
   document.getElementById("rankSub").textContent=r.theme;
+  document.getElementById("shareCopy").textContent=`今日は「${r.reading}」でした。あなたは、どんなふうに受け取りますか？`;
   document.getElementById("message").textContent=r.message;
   document.getElementById("color").textContent=r.color;
   document.getElementById("item").textContent=r.item;
@@ -448,10 +458,11 @@ async function shareResult(){
     if(e.name!=="AbortError") status.textContent="共有できませんでした。もう一度お試しください。";
   }
 }
-document.getElementById("shareBtn").addEventListener("click",shareResult);
+const shareBtn=document.getElementById("shareBtn");
+if(shareBtn) shareBtn.addEventListener("click",shareResult);
 
-
-document.getElementById("drawBtn").addEventListener("click",draw);
+const drawBtn=document.getElementById("drawBtn");
+if(drawBtn) drawBtn.addEventListener("click",draw);
 try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.date===todayKey())render(saved);}catch(e){localStorage.removeItem(KEY);}
 </script>
 </body>
