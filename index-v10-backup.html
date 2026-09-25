@@ -28,13 +28,7 @@
       cursor:pointer; border-radius:28px; overflow:hidden;
       box-shadow:0 16px 36px rgba(113,66,53,.12);
     }
-    .entrance { position:relative; }
     .entrance img { display:block; width:100%; height:auto; }
-    .entrance-date {
-      position:absolute; top:19.2%; left:50%; transform:translateX(-50%);
-      width:58%; text-align:center; color:#85675e;
-      font-size:clamp(13px,3.5vw,18px); font-weight:500; line-height:1; pointer-events:none;
-    }
     .entrance:active { transform:scale(.995); }
     .result-card {
       display:none; margin-top:17px; padding:20px 17px; text-align:center;
@@ -115,7 +109,6 @@
 <main class="app">
   <button class="entrance" id="entrance" type="button" aria-label="今日のおまもりを見る">
     <img src="./omamori-top.png" alt="おまもりみくじ。巫女ねこ・ちゃろまるとピーちゃん">
-    <span class="entrance-date" id="entranceDate" aria-hidden="true"></span>
   </button>
 
   <section class="result-card" id="resultCard" aria-live="polite">
@@ -197,11 +190,6 @@ function dateKey(){
   const d=new Date();
   return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
 }
-function displayDate(){
-  const d=new Date();
-  const weekdays=["日","月","火","水","木","金","土"];
-  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${weekdays[d.getDay()]})`;
-}
 function makeFortune(){
   const base=randomFrom(fortunes);
   return {date:dateKey(),name:base.name,reading:base.reading,image:base.image,
@@ -259,7 +247,6 @@ async function shareFortune(){
   }
 }
 document.addEventListener("DOMContentLoaded",()=>{
-  $("entranceDate").textContent=displayDate();
   const saved=loadFortune();
   if(saved) showFortune(saved,false);
   $("entrance").addEventListener("click",()=>showFortune(currentFortune(),true));
